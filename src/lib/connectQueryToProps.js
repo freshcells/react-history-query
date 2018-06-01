@@ -24,8 +24,8 @@ const connectQueryToProps =
 
       innerComponentRef: ?Element;
 
-      componentWillMount() {
-        const state = this.context.queryManager.register(namespace, options, this.props);
+      async componentWillMount() {
+        const state = await this.context.queryManager.register(namespace, options, this.props);
         this.setState(state);
       }
 
@@ -37,11 +37,11 @@ const connectQueryToProps =
         if (this.context.queryManager.isTransitioning()) {
           return;
         }
-      // check if the parameters actually changed:
+        // check if the parameters actually changed:
         if (!shallowEqual(
           getOptionsFromProps(options, prevState),
           getOptionsFromProps(options, this.state))
-      ) {
+        ) {
           this.context.queryManager.pushChanges(namespace, this.state);
         }
       }

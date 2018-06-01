@@ -39,15 +39,16 @@ export default class QueryContainer extends Component<QueryContainerProps> {
     const parsedQuery = this.initialParsedQuery(this.props.history.location);
     // we skip one cycle to support proper handling of route switches / prop updates in fromHistory
     requestAnimationFrame(() => {
-      Object.keys(this.components).forEach((cmp) => {
+      Object.keys(this.components).forEach(async (cmp) => {
         const { blankState, options, props, state } = this.components[cmp];
         const serialized = {};
-        const nextState = Object.keys(options).reduce((initial, optionKey) => {
+        const nextState = await Object.keys(options).reduce(async (initialP, optionKey) => {
+          const initial = await initialP
           const queryValue = parsedQuery[`${cmp}.${optionKey}`];
           const blankStateValue = blankState[optionKey];
           let newState = blankStateValue;
           if (queryValue !== undefined) {
-            newState = options[optionKey].fromQueryString(queryValue, props);
+            newState = await options[optionKey].fromQueryString(queryValue, props);
             serialized[`${cmp}.${optionKey}`] = queryValue;
           } else if (blankStateValue !== undefined) {
             const oldValue = state[optionKey];
@@ -167,7 +168,7 @@ export default class QueryContainer extends Component<QueryContainerProps> {
         updateProps: (namespace:string, props:Object) => {
           this.components[namespace] = { ...this.components[namespace], props };
         },
-        register: (namespace: string, options: Object, props: Object) => {
+        register: async (namespace: string, options: Object, props: Object) => {
           if (this.components[namespace]) {
             throw new Error(`connectQueryToProps: Namespace '${namespace}' already registered.`);
           }
@@ -184,14 +185,15 @@ export default class QueryContainer extends Component<QueryContainerProps> {
           const initialState = {};
           // serialized query parameter state
           const serialized = {};
-          const state = Object.keys(options).reduce((initial, key) => {
+          const state = await Object.keys(options).reduce(async (initialP, key) => {
+            const initial = await initialP;
             const initialQueryValue = this.initialParsedQuery(this.props.history.location)[`${namespace}.${key}`];
             if (props[key] !== undefined) {
               blankState[key] = props[key];
               initialState[key] = props[key];
             }
             if (initialQueryValue !== undefined) {
-              const value = options[key].fromQueryString(initialQueryValue, props);
+              const value = await options[key].fromQueryString(initialQueryValue, props);
               initialState[key] = value;
               serialized[`${namespace}.${key}`] = initialQueryValue;
               return { ...initial, [key]: value };
