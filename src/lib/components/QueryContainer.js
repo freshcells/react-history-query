@@ -168,7 +168,7 @@ export default class QueryContainer extends Component<QueryContainerProps> {
         updateProps: (namespace:string, props:Object) => {
           this.components[namespace] = { ...this.components[namespace], props };
         },
-        register: async (namespace: string, options: Object, props: Object) => {
+        register: (namespace: string, options: Object, props: Object) => {
           if (this.components[namespace]) {
             throw new Error(`connectQueryToProps: Namespace '${namespace}' already registered.`);
           }
@@ -185,7 +185,7 @@ export default class QueryContainer extends Component<QueryContainerProps> {
           const initialState = {};
           // serialized query parameter state
           const serialized = {};
-          const state = await Object.keys(options).reduce(async (initialP, key) => {
+          const state = Object.keys(options).reduce(async (initialP, key) => {
             const initial = await initialP;
             const initialQueryValue = this.initialParsedQuery(this.props.history.location)[`${namespace}.${key}`];
             if (props[key] !== undefined) {

@@ -24,8 +24,8 @@ const connectQueryToProps =
 
       innerComponentRef: ?Element;
 
-      async componentWillMount() {
-        const state = await this.context.queryManager.register(namespace, options, this.props);
+      componentWillMount() {
+        const state = this.context.queryManager.register(namespace, options, this.props);
         this.setState(state);
       }
 
